@@ -6,10 +6,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -34,13 +36,14 @@ import static com.gidi.game.handlers.B2DVars.BIT_CRYSTAL;
 import static com.gidi.game.handlers.B2DVars.BIT_GREEN;
 import static com.gidi.game.handlers.B2DVars.BIT_PLAYER;
 import static com.gidi.game.handlers.B2DVars.BIT_RED;
+import static com.gidi.game.handlers.B2DVars.BIT_WALL;
 import static com.gidi.game.handlers.B2DVars.PPM;
 
 /**
  * Created by JustMac on 22/10/2016.
  */
 public class Play extends GameState {
-    private boolean debug = false;
+    private boolean debug = true;
 
     private World world;
 
@@ -74,6 +77,10 @@ public class Play extends GameState {
         
         // create crystals
         createCrystals();
+
+        // create walls
+        createWalls();
+
         // set up b2d cam
         b2dCam = new OrthographicCamera();
         b2dCam.setToOrtho(false, BBGame.V_WIDTH / PPM, BBGame.V_HEIGHT / PPM);
@@ -83,6 +90,33 @@ public class Play extends GameState {
 
     }
 
+    private void createWalls() {
+        MapLayer layer = tiledMap.getLayers().get("walls");
+        BodyDef bodyDef = new BodyDef();
+        FixtureDef fdef = new FixtureDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+
+        PolygonShape shape = new PolygonShape();
+
+        fdef.filter.categoryBits = BIT_WALL;
+        fdef.filter.maskBits = BIT_PLAYER;
+
+        for (MapObject mo : layer.getObjects()){
+            RectangleMapObject rectangleMapObject = (RectangleMapObject)mo;
+            Rectangle rectangle = rectangleMapObject.getRectangle();
+            float x = Float.valueOf(mo.getProperties().get("x").toString()) / PPM;
+            float y = Float.valueOf(mo.getProperties().get("y").toString()) / PPM;
+            System.out.print(rectangle.x + " " +rectangle.y);
+            shape.setAsBox(25 /PPM, 70/PPM);
+            bodyDef.position.set(rectangle.x/ PPM - rectangle.width *0.5f / PPM, rectangle.y/PPM + rectangle.height *0.5f/PPM);
+
+            fdef.shape = shape;
+
+            Body body = world.createBody(bodyDef);
+            body.createFixture(fdef).setUserData("wall");
+
+        }
+    }
     private void createCrystals() {
         crystals = new Array<Crystal>();
 
@@ -182,7 +216,7 @@ public class Play extends GameState {
 
         bdef.position.set(10 / PPM, 200 / PPM);
         bdef.type = BodyDef.BodyType.DynamicBody;
-        bdef.linearVelocity.set(0.5f,0);
+//        bdef.linearVelocity.set(0.5f,0);
         Body body = world.createBody(bdef);
 
         shape.setAsBox(13 / PPM, 13 / PPM);
@@ -195,7 +229,7 @@ public class Play extends GameState {
         shape.setAsBox(13/ PPM, 2 / PPM, new Vector2(0, -13 / PPM),0);
         fdef.shape = shape;
         fdef.filter.categoryBits = BIT_PLAYER;
-        fdef.filter.maskBits = BIT_RED | BIT_CRYSTAL;
+        fdef.filter.maskBits = BIT_RED | BIT_CRYSTAL | BIT_WALL;
         fdef.isSensor = true;
         body.createFixture(fdef).setUserData("foot");
         shape.dispose();
@@ -203,6 +237,7 @@ public class Play extends GameState {
         // create player
 
         player = new Player(body);
+        player.getBody().setLinearVelocity(0.5f, 0);
 
         body.setUserData(player);
     }
@@ -265,6 +300,12 @@ public class Play extends GameState {
             player.collectCrystal();
         }
         bodies.clear();
+
+        if (cl.isPlayerTouchingWall()){
+            Vector2 v = player.getBody().getLinearVelocity();
+            player.getBody().setLinearVelocity(-v.x * 1.1f, v.y);
+//            player.getBody().setLinearVelocity(-v.x, v.y);
+        }
 
         player.update(dt);
         for (int i = 0; i < crystals.size; i++) {

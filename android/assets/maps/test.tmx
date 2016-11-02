@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="8" tilewidth="32" tileheight="32" nextobjectid="29">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="8" tilewidth="32" tileheight="32" nextobjectid="47">
  <tileset firstgid="1" name="blocks" tilewidth="32" tileheight="32" tilecount="3" columns="3">
   <image source="blocks.png" width="96" height="32"/>
  </tileset>
  <layer name="red" width="40" height="8">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUDFXAiAOPAuIAAAxEAAc=
+   eJxjYBgFo2AUDGXAOEjxUAAAKOwAJw==
   </data>
  </layer>
  <layer name="green" width="40" height="8">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUDEfARCQeyQAAGmgAFQ==
+   eJxjYBgFo2AUjIKRCQAFAAAB
   </data>
  </layer>
  <layer name="blue" width="40" height="8">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjHTATAIeTgAAImQAIg==
+   eJxjYBgFo2AUjIKRCQAFAAAB
   </data>
  </layer>
- <objectgroup name="crystals"/>
+ <objectgroup name="crystals" offsetx="14" offsety="12">
+  <object id="37" x="464" y="90"/>
+  <object id="39" x="653" y="142"/>
+  <object id="40" x="714" y="80"/>
+  <object id="41" x="742" y="112" height="1"/>
+  <object id="42" x="735" y="151"/>
+ </objectgroup>
+ <objectgroup name="walls">
+  <object id="44" x="1248" y="3" width="30" height="253"/>
+  <object id="45" x="860" y="0" width="26" height="254"/>
+ </objectgroup>
 </map>

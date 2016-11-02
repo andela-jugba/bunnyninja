@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Array;
  */
 
 public class MyContactListener implements ContactListener {
-    private boolean playerOnGround;
+    private boolean playerOnWall;
     private int numFootContacts;
     private Array<Body> bodiesToRemove;
 
@@ -41,6 +41,14 @@ public class MyContactListener implements ContactListener {
         if (fb.getUserData() != null && fb.getUserData().equals("crystal")) {
             bodiesToRemove.add(fb.getBody());
         }
+        if (fb.getUserData() !=null && fb.getUserData().equals("wall")) {
+            playerOnWall = true;
+            System.out.println("wall contact!");
+        }
+        if (fa.getUserData() !=null && fa.getUserData().equals("wall")) {
+            System.out.println("wall contact!");
+            playerOnWall = true;
+        }
     }
 
     @Override
@@ -54,6 +62,14 @@ public class MyContactListener implements ContactListener {
         if (fb.getUserData() != null && fb.getUserData().equals("foot")) {
             numFootContacts--;
         }
+        if (fb.getUserData() !=null && fb.getUserData().equals("wall")) {
+            playerOnWall = false;
+            System.out.println("wall contact!");
+        }
+        if (fa.getUserData() !=null && fa.getUserData().equals("wall")) {
+            System.out.println("wall contact!");
+            playerOnWall = false;
+        }
     }
 
     @Override
@@ -61,6 +77,9 @@ public class MyContactListener implements ContactListener {
 
     }
 
+    public  boolean isPlayerTouchingWall() {
+        return playerOnWall;
+    }
     public boolean isPlayerOnGround() {
         return numFootContacts > 0;
     }
